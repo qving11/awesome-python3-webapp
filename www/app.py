@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-__author__ = 'Michael Liao'
-
 import logging; logging.basicConfig(level=logging.INFO)
 import os
 import json
@@ -10,8 +7,6 @@ import time
 import asyncio
 from datetime import datetime
 from handlers import cookie2user, COOKIE_NAME
-
-
 from aiohttp import web
 # Jinja is a web template engine. Similar to the Django template.
 # Jinja is Flask's default template engine.
@@ -113,7 +108,7 @@ async def response_factory(app, handler):
                 return resp
             else:
                 ## 在handlers.py完全完成后,去掉下一行的双井号
-                # r['__user__'] = request.__user__
+                r['__user__'] = request.__user__
                 resp = web.Response(body=app['__templating__'].\
                        get_template(template).render(**r).encode('utf-8'))
                 resp.content_type = 'text/html;charset=utf-8'
@@ -148,7 +143,7 @@ async def init(loop):
     await orm.create_pool(loop=loop, **configs['db'])
     ## 在handlers.py完全完成后,在下面middlewares的list中加入auth_factory
     app = web.Application(loop=loop, middlewares=[
-        logger_factory, response_factory
+        logger_factory, auth_factory, response_factory
     ])
     init_jinja2(app, filters=dict(datetime=datetime_filter))
     add_routes(app, 'handlers')
